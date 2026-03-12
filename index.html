@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movio Studio - Professional Creative Partner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- GSAP & ScrollTrigger untuk Animasi Scroll -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- SplitType untuk memecah teks per kata (Efek blur per kata) -->
+    <script src="https://unpkg.com/split-type"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brandBg: '#F8FAFC',
+                        brandDark: '#0044FF',
+                        brandAccent: '#FF5C00',
+                        brandBorder: '#E2E8F0'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F8FAFC;
+            color: #0044FF;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Cursor berkedip */
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Putaran Badge */
+        .spin-slow {
+            animation: spin 12s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Hero Arch Wheel Carousel - Seperempat Lingkaran Merapat */
+        .wheel-container {
+            position: absolute;
+            left: 50%;
+            bottom: -600px;
+            width: 0;
+            height: 0;
+        }
+
+        .wheel-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            animation: spin-wheel 60s linear infinite;
+        }
+
+        .wheel-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 160px;
+            height: 220px;
+            transform: translate(-50%, -50%) rotate(var(--rot)) translateY(-700px);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 4px solid white;
+            background: #E2E8F0;
+        }
+
+        .wheel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @media (min-width: 768px) {
+            .wheel-container {
+                bottom: -1100px;
+            }
+
+            .wheel-item {
+                width: 320px;
+                height: 440px;
+                transform: translate(-50%, -50%) rotate(var(--rot)) translateY(-1400px);
+                border-width: 8px;
+                border-radius: 1.5rem;
+            }
+        }
+
+        @keyframes spin-wheel {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(-360deg);
+            }
+        }
+
+        /* Garis bawah melengkung */
+        .curved-underline {
+            position: relative;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .curved-underline::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 12px;
+            bottom: 4px;
+            left: 0;
+            background-color: #FFEDD5;
+            z-index: -1;
+            border-radius: 8px;
+            transform: rotate(-1deg);
+        }
+
+        /* Accordion List Hover */
+        .service-row:hover .service-arrow {
+            transform: rotate(-45deg);
+            background-color: #FF5C00;
+            color: white;
+            border-color: #FF5C00;
+        }
+
+        /* Text outline untuk footer */
+        .text-outline {
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+        }
+
+        /* SplitType reset */
+        .word {
+            display: inline-block;
+            will-change: filter, transform, opacity;
+        }
+
+        /* ANIMASI POLICE LINE MARQUEE PADA PORTFOLIO HOVER */
+        .animate-police-line {
+            animation: scroll-police 15s linear infinite;
+        }
+
+        @keyframes scroll-police {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+
+<body class="selection:bg-brandAccent selection:text-white relative">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-[100] flex justify-between items-center px-6 md:px-12 py-5 bg-[#F8FAFC]/90 backdrop-blur-md transition-transform duration-500 border-b border-brandBorder/50"
+        id="navbar">
+        <!-- Logo Kiri -->
+        <div class="flex items-center gap-2 cursor-pointer">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                class="text-brandAccent">
+                <path d="M15 12L10 8V16L15 12Z" fill="currentColor" />
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+            </svg>
+            <span class="text-2xl font-bold tracking-tight">Movio</span>
+        </div>
+
+        <!-- Navigasi Kanan (Button + Grid Icon) -->
+        <div class="flex items-center gap-6 relative">
+            <a href="#"
+                class="hidden md:flex bg-brandDark text-white px-7 py-3 rounded-full text-sm font-bold tracking-wider hover:bg-brandAccent transition-colors shadow-md">
+                KONSULTASI GRATIS
+            </a>
+            <!-- Tombol Grid Menu -->
+            <button id="menu-btn"
+                class="grid grid-cols-2 gap-[3px] items-center justify-center w-7 h-7 hover:opacity-70 transition-opacity cursor-pointer">
+                <div class="grid-icon grid grid-cols-2 gap-[3px] w-full h-full pointer-events-none">
+                    <div class="w-full h-full bg-brandDark rounded-[2px]"></div>
+                    <div class="w-full h-full bg-brandDark rounded-[2px]"></div>
+                    <div class="w-full h-full bg-brandDark rounded-[2px]"></div>
+                    <div class="w-full h-full bg-brandDark rounded-[2px]"></div>
+                </div>
+            </button>
+
+            <!-- Dropdown Menu Sesuai Referensi Gambar -->
+            <div id="nav-dropdown"
+                class="absolute top-[3.5rem] right-0 w-[280px] bg-white rounded-[1rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-brandBorder/60 p-7 opacity-0 pointer-events-none transform translate-y-[-20px] transition-all duration-300 z-50">
+                <ul class="flex flex-col gap-4 text-[22px] font-medium text-brandDark mb-8">
+                    <li><a href="#" class="block hover:text-brandAccent transition-colors">Home</a></li>
+                    <li
+                        class="flex justify-between items-center cursor-pointer hover:text-brandAccent transition-colors">
+                        <span>Pages</span> <span class="text-xl">+</span>
+                    </li>
+                    <li
+                        class="flex justify-between items-center cursor-pointer hover:text-brandAccent transition-colors">
+                        <span>Service</span> <span class="text-xl">+</span>
+                    </li>
+                    <li
+                        class="flex justify-between items-center cursor-pointer hover:text-brandAccent transition-colors">
+                        <span>Blog</span> <span class="text-xl">+</span>
+                    </li>
+                    <li
+                        class="flex justify-between items-center cursor-pointer hover:text-brandAccent transition-colors">
+                        <span>Portfolio</span> <span class="text-xl">+</span>
+                    </li>
+                    <li><a href="#" class="block hover:text-brandAccent transition-colors">Contact</a></li>
+                </ul>
+                <div class="border-t border-brandBorder pt-5 text-sm text-brandDark">
+                    <a href="mailto:info@movio.id"
+                        class="underline hover:text-brandAccent transition-colors font-medium mb-3 block">info@movio.id</a>
+                    <p class="leading-relaxed opacity-80">Jalan Haji Rean No.56<br>Tangerang Selatan<br>Banten 15418, ID
+                    </p>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-48 px-6 overflow-hidden flex flex-col items-center border-b border-brandBorder relative">
+        <div class="text-center max-w-6xl mx-auto z-10 hero-content relative">
+            <p class="text-brandAccent font-bold tracking-widest uppercase mb-6 text-sm">Professional Creative Partner
+            </p>
+            <h1 class="text-[4rem] md:text-[6.5rem] lg:text-[8rem] font-extrabold leading-[0.9] tracking-tighter mb-8 text-brandDark"
+                id="hero-title">
+                Structured Video<br>
+                Production<span class="cursor-blink text-brandAccent">_</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl mx-auto font-medium">
+                Professional video and visual design production powered by Hybrid AI system for the efficiency you need
+                and the quality standards you trust.
+            </p>
+            <button
+                class="bg-brandDark text-white px-8 py-4 rounded-xl text-sm font-bold tracking-widest hover:bg-brandAccent transition-colors shadow-xl hero-btn cursor-pointer">
+                MINTA QUOTE
+            </button>
+        </div>
+
+        <!-- Hero Images Gallery (Arch Carousel non-interaktif, Jarak Dirapatkan) -->
+        <div class="relative w-full max-w-[100vw] h-[350px] md:h-[500px] mt-10 overflow-hidden pointer-events-none z-0">
+            <div class="wheel-container opacity-0">
+                <div class="wheel-track">
+                    <!-- Jumlah item digandakan menjadi 24 (setiap 15 derajat) agar rapat -->
+                    <div class="wheel-item" style="--rot: 0deg;"><img
+                            src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=600&auto=format&fit=crop"
+                            alt="Shoot"></div>
+                    <div class="wheel-item" style="--rot: 15deg;"><img
+                            src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=600&auto=format&fit=crop"
+                            alt="Edit"></div>
+                    <div class="wheel-item" style="--rot: 30deg;"><img
+                            src="https://images.unsplash.com/photo-1664575602276-faa075f7779d?q=80&w=600&auto=format&fit=crop"
+                            alt="Meeting"></div>
+                    <div class="wheel-item" style="--rot: 45deg;"><img
+                            src="https://images.unsplash.com/photo-1506784951206-88eb31bf4520?q=80&w=600&auto=format&fit=crop"
+                            alt="Work"></div>
+                    <div class="wheel-item" style="--rot: 60deg;"><img
+                            src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop"
+                            alt="Data"></div>
+                    <div class="wheel-item" style="--rot: 75deg;"><img
+                            src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop"
+                            alt="Graph"></div>
+                    <div class="wheel-item" style="--rot: 90deg;"><img
+                            src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop"
+                            alt="Learning"></div>
+                    <div class="wheel-item" style="--rot: 105deg;"><img
+                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop"
+                            alt="Corporate"></div>
+                    <div class="wheel-item" style="--rot: 120deg;"><img
+                            src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=600&auto=format&fit=crop"
+                            alt="Shoot"></div>
+                    <div class="wheel-item" style="--rot: 135deg;"><img
+                            src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=600&auto=format&fit=crop"
+                            alt="Edit"></div>
+                    <div class="wheel-item" style="--rot: 150deg;"><img
+                            src="https://images.unsplash.com/photo-1664575602276-faa075f7779d?q=80&w=600&auto=format&fit=crop"
+                            alt="Meeting"></div>
+                    <div class="wheel-item" style="--rot: 165deg;"><img
+                            src="https://images.unsplash.com/photo-1506784951206-88eb31bf4520?q=80&w=600&auto=format&fit=crop"
+                            alt="Work"></div>
+                    <div class="wheel-item" style="--rot: 180deg;"><img
+                            src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop"
+                            alt="Data"></div>
+                    <div class="wheel-item" style="--rot: 195deg;"><img
+                            src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop"
+                            alt="Graph"></div>
+                    <div class="wheel-item" style="--rot: 210deg;"><img
+                            src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop"
+                            alt="Learning"></div>
+                    <div class="wheel-item" style="--rot: 225deg;"><img
+                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop"
+                            alt="Corporate"></div>
+                    <div class="wheel-item" style="--rot: 240deg;"><img
+                            src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=600&auto=format&fit=crop"
+                            alt="Shoot"></div>
+                    <div class="wheel-item" style="--rot: 255deg;"><img
+                            src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=600&auto=format&fit=crop"
+                            alt="Edit"></div>
+                    <div class="wheel-item" style="--rot: 270deg;"><img
+                            src="https://images.unsplash.com/photo-1664575602276-faa075f7779d?q=80&w=600&auto=format&fit=crop"
+                            alt="Meeting"></div>
+                    <div class="wheel-item" style="--rot: 285deg;"><img
+                            src="https://images.unsplash.com/photo-1506784951206-88eb31bf4520?q=80&w=600&auto=format&fit=crop"
+                            alt="Work"></div>
+                    <div class="wheel-item" style="--rot: 300deg;"><img
+                            src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop"
+                            alt="Data"></div>
+                    <div class="wheel-item" style="--rot: 315deg;"><img
+                            src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop"
+                            alt="Graph"></div>
+                    <div class="wheel-item" style="--rot: 330deg;"><img
+                            src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600&auto=format&fit=crop"
+                            alt="Learning"></div>
+                    <div class="wheel-item" style="--rot: 345deg;"><img
+                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=600&auto=format&fit=crop"
+                            alt="Corporate"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="py-32 px-6 md:px-12 lg:px-20 max-w-screen-2xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            <div class="lg:col-span-8">
+                <p class="text-sm font-bold uppercase tracking-widest mb-8 text-gray-500 fade-up">Tentang Movio Studio
+                </p>
+                <h2
+                    class="blur-text text-4xl md:text-5xl lg:text-[64px] font-bold leading-[1.1] tracking-tight mb-8 text-brandDark">
+                    Kami membantu perusahaan mengubah pesan bisnis yang kompleks menjadi komunikasi visual yang <span
+                        class="curved-underline">jelas & terstruktur</span>
+                </h2>
+                <p class="text-xl text-gray-600 font-medium mb-12 max-w-3xl leading-relaxed fade-up">
+                    Movio adalah professional business service di bidang kreatif & digital. Kami menyediakan jasa
+                    produksi video dan desain untuk korporasi dengan pendekatan produksi konvensional maupun
+                    <strong>Hybrid AI Production</strong> yang efisien.
+                </p>
+
+                <div class="flex items-center gap-8 fade-up">
+                    <div class="flex -space-x-4">
+                        <img class="w-16 h-16 rounded-full border-4 border-brandBg object-cover"
+                            src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=200"
+                            alt="Corporate 1">
+                        <img class="w-16 h-16 rounded-full border-4 border-brandBg object-cover"
+                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200"
+                            alt="Corporate 2">
+                        <div
+                            class="w-16 h-16 rounded-full border-4 border-brandBg bg-brandAccent flex items-center justify-center text-white text-2xl font-bold">
+                            +</div>
+                    </div>
+                    <a href="#"
+                        class="border-2 border-brandDark px-8 py-4 rounded-full text-sm font-bold tracking-widest hover:bg-brandDark hover:text-white transition-colors">
+                        KONSULTASI SEKARANG
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3D Shape / Visual -->
+            <div class="lg:col-span-4 flex justify-center lg:justify-end fade-up">
+                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop"
+                    alt="Corporate Server Tech"
+                    class="w-full max-w-sm rounded-[2rem] object-cover mix-blend-multiply drop-shadow-2xl floating-img grayscale hover:grayscale-0 transition-all duration-700">
+            </div>
+        </div>
+
+        <!-- Stats Sub-section -->
+        <div class="mt-32 grid grid-cols-1 md:grid-cols-3 gap-12 items-center fade-up-stagger">
+            <div class="flex flex-col gap-3 stat-item">
+                <span
+                    class="border border-brandDark/20 rounded-full px-5 py-2 text-xs font-bold tracking-widest w-fit hover:bg-white transition-colors cursor-pointer bg-white">KEPASTIAN
+                    HASIL</span>
+                <span
+                    class="border border-brandDark/20 rounded-full px-5 py-2 text-xs font-bold tracking-widest w-fit hover:bg-white transition-colors cursor-pointer">PROSES
+                    TERUKUR</span>
+                <span
+                    class="border border-brandDark/20 rounded-full px-5 py-2 text-xs font-bold tracking-widest w-fit hover:bg-white transition-colors cursor-pointer">STRUKTUR
+                    JELAS</span>
+            </div>
+
+            <div class="stat-item">
+                <h3 class="text-6xl md:text-7xl font-bold mb-3 tracking-tighter text-brandDark">100%</h3>
+                <p class="text-xs font-bold uppercase tracking-widest text-gray-500">TIMELINE CERTAINTY</p>
+            </div>
+
+            <div class="stat-item">
+                <h3 class="text-6xl md:text-7xl font-bold mb-3 tracking-tighter text-brandDark">Hybrid</h3>
+                <p class="text-xs font-bold uppercase tracking-widest text-gray-500">AI PRODUCTION EFFICIENCY</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Work / Portfolio Section (LAYOUT BARU: 4 FOTO GRID BERJEJER) -->
+    <section class="py-32 px-6 md:px-12 lg:px-20 max-w-screen-2xl mx-auto border-t border-brandBorder relative">
+        <!-- Spinning Badge -->
+        <div class="absolute top-20 right-10 md:right-20 w-36 h-36 spin-slow hidden lg:block fade-up">
+            <svg viewBox="0 0 100 100" class="w-full h-full text-brandAccent fill-current">
+                <defs>
+                    <path id="circle" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" />
+                </defs>
+                <circle cx="50" cy="50" r="37" fill="none" />
+                <text font-size="11" font-weight="bold" letter-spacing="1.5">
+                    <textPath href="#circle">CORPORATE EXCELLENCE * STRUCTURED *</textPath>
+                </text>
+            </svg>
+        </div>
+
+        <h2
+            class="blur-text text-[4.5rem] md:text-[7rem] lg:text-[9rem] font-extrabold tracking-tighter leading-none mb-12 text-brandDark">
+            <span class="text-brandAccent">*</span> Portfolio<br>Proyek
+        </h2>
+
+        <p class="fade-up max-w-2xl text-xl text-gray-600 mb-20 leading-relaxed font-medium">
+            Temukan karya terbaik kami dalam membantu korporasi menghubungkan pesan, membangun identitas, dan mencapai
+            hasil melalui berbagai platform.
+        </p>
+
+        <!-- Grid Container Portfolio Berjajar 2 Kolom -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
+
+            <!-- Item 1 (Kiri Atas, Lebih Lebar) -->
+            <div class="portfolio-card group cursor-pointer md:col-span-7 fade-up">
+                <!-- Image Container with Hover Effects -->
+                <div
+                    class="relative rounded-[2.5rem] overflow-hidden mb-6 h-[400px] md:h-[500px] bg-brandBorder shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1000&auto=format&fit=crop"
+                        class="w-full h-full object-cover transition-all duration-700 ease-out group-hover:rotate-[6deg] group-hover:scale-[1.15] group-hover:blur-[8px] group-hover:brightness-[0.7]"
+                        alt="E-Learning SCORM">
+
+                    <!-- Text Marquee / Line Polisi Overlay -->
+                    <div
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] rotate-[-8deg] bg-brandAccent text-white font-extrabold text-2xl md:text-3xl py-4 z-20 flex overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-2xl pointer-events-none">
+                        <div class="animate-police-line flex w-max">
+                            <div class="flex gap-4 pr-4">
+                                <span class="tracking-widest uppercase">E-LEARNING INTERAKTIF *</span>
+                                <span class="tracking-widest uppercase">E-LEARNING INTERAKTIF *</span>
+                                <span class="tracking-widest uppercase">E-LEARNING INTERAKTIF *</span>
+                                <span class="tracking-widest uppercase">E-LEARNING INTERAKTIF *</span>
+                            </div>
+                            <div class="flex gap-4 pr-4" aria-hidden="true">
+                                <span class="tracking-widest uppercase">E-LEARNING INTERAKTIF *</span>
+                                <span class="tracking-widest uppercase">E-LEARNING INTERAKTIF *</span>
+                                <span class="tracking-widest uppercase">E-LEARNING INTERAKTIF *</span>
+                                <span class="tracking-widest uppercase">E-LEARNING INTERAKTIF *</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Card Footer (Title, Tags, Button) -->
+                <div class="flex justify-between items-start px-2">
+                    <div>
+                        <h3 class="text-3xl md:text-4xl font-bold tracking-tight text-brandDark mb-4">E-Learning
+                            Interaktif</h3>
+                        <div class="flex gap-3 flex-wrap">
+                            <span
+                                class="text-xs font-bold tracking-widest bg-white px-4 py-2 rounded-full border border-brandBorder shadow-sm text-brandDark">SCORM
+                                1.2 / 2004</span>
+                            <span
+                                class="text-xs font-bold tracking-widest bg-white px-4 py-2 rounded-full border border-brandBorder shadow-sm text-brandDark">MODUL
+                                LMS</span>
+                        </div>
+                    </div>
+                    <div
+                        class="w-14 h-14 bg-brandDark rounded-full flex items-center justify-center text-white group-hover:bg-brandAccent transition-colors shrink-0">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 2 (Kanan Atas, Sedikit Lebih Sempit) -->
+            <div class="portfolio-card group cursor-pointer md:col-span-5 fade-up">
+                <!-- Image Container -->
+                <div
+                    class="relative rounded-[2.5rem] overflow-hidden mb-6 h-[400px] md:h-[350px] bg-brandBorder shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop"
+                        class="w-full h-full object-cover transition-all duration-700 ease-out group-hover:rotate-[6deg] group-hover:scale-[1.15] group-hover:blur-[8px] group-hover:brightness-[0.7]"
+                        alt="Animasi Explainer">
+
+                    <!-- Text Marquee Overlay -->
+                    <div
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] rotate-[-8deg] bg-brandAccent text-white font-extrabold text-2xl md:text-3xl py-4 z-20 flex overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-2xl pointer-events-none">
+                        <div class="animate-police-line flex w-max">
+                            <div class="flex gap-4 pr-4">
+                                <span class="tracking-widest uppercase">ANIMASI EXPLAINER *</span>
+                                <span class="tracking-widest uppercase">ANIMASI EXPLAINER *</span>
+                                <span class="tracking-widest uppercase">ANIMASI EXPLAINER *</span>
+                                <span class="tracking-widest uppercase">ANIMASI EXPLAINER *</span>
+                            </div>
+                            <div class="flex gap-4 pr-4" aria-hidden="true">
+                                <span class="tracking-widest uppercase">ANIMASI EXPLAINER *</span>
+                                <span class="tracking-widest uppercase">ANIMASI EXPLAINER *</span>
+                                <span class="tracking-widest uppercase">ANIMASI EXPLAINER *</span>
+                                <span class="tracking-widest uppercase">ANIMASI EXPLAINER *</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-start px-2">
+                    <div>
+                        <h3 class="text-3xl md:text-4xl font-bold tracking-tight text-brandDark mb-4">Animasi Explainer
+                        </h3>
+                        <div class="flex gap-3 flex-wrap">
+                            <span
+                                class="text-xs font-bold tracking-widest bg-white px-4 py-2 rounded-full border border-brandBorder shadow-sm text-brandDark">2D
+                                ANIMATION</span>
+                            <span
+                                class="text-xs font-bold tracking-widest bg-white px-4 py-2 rounded-full border border-brandBorder shadow-sm text-brandDark">INFOGRAFIS</span>
+                        </div>
+                    </div>
+                    <div
+                        class="w-14 h-14 bg-brandDark rounded-full flex items-center justify-center text-white group-hover:bg-brandAccent transition-colors shrink-0">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 3 (Kiri Bawah, Staggered layout dgn margin top) -->
+            <div class="portfolio-card group cursor-pointer md:col-span-5 md:mt-24 fade-up">
+                <!-- Image Container -->
+                <div
+                    class="relative rounded-[2.5rem] overflow-hidden mb-6 h-[400px] md:h-[350px] bg-brandBorder shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=1000&auto=format&fit=crop"
+                        class="w-full h-full object-cover transition-all duration-700 ease-out group-hover:rotate-[6deg] group-hover:scale-[1.15] group-hover:blur-[8px] group-hover:brightness-[0.7]"
+                        alt="Company Profile">
+
+                    <!-- Text Marquee Overlay -->
+                    <div
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] rotate-[-8deg] bg-brandAccent text-white font-extrabold text-2xl md:text-3xl py-4 z-20 flex overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-2xl pointer-events-none">
+                        <div class="animate-police-line flex w-max">
+                            <div class="flex gap-4 pr-4">
+                                <span class="tracking-widest uppercase">COMPANY PROFILE *</span>
+                                <span class="tracking-widest uppercase">COMPANY PROFILE *</span>
+                                <span class="tracking-widest uppercase">COMPANY PROFILE *</span>
+                                <span class="tracking-widest uppercase">COMPANY PROFILE *</span>
+                            </div>
+                            <div class="flex gap-4 pr-4" aria-hidden="true">
+                                <span class="tracking-widest uppercase">COMPANY PROFILE *</span>
+                                <span class="tracking-widest uppercase">COMPANY PROFILE *</span>
+                                <span class="tracking-widest uppercase">COMPANY PROFILE *</span>
+                                <span class="tracking-widest uppercase">COMPANY PROFILE *</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-start px-2">
+                    <div>
+                        <h3 class="text-3xl md:text-4xl font-bold tracking-tight text-brandDark mb-4">Company Profile
+                        </h3>
+                        <div class="flex gap-3 flex-wrap">
+                            <span
+                                class="text-xs font-bold tracking-widest bg-white px-4 py-2 rounded-full border border-brandBorder shadow-sm text-brandDark">VIDEO
+                                SHOOTING</span>
+                            <span
+                                class="text-xs font-bold tracking-widest bg-white px-4 py-2 rounded-full border border-brandBorder shadow-sm text-brandDark">CINEMATIC</span>
+                        </div>
+                    </div>
+                    <div
+                        class="w-14 h-14 bg-brandDark rounded-full flex items-center justify-center text-white group-hover:bg-brandAccent transition-colors shrink-0">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item 4 (Kanan Bawah, Lebar penuh kolom) -->
+            <div class="portfolio-card group cursor-pointer md:col-span-7 fade-up">
+                <!-- Image Container -->
+                <div
+                    class="relative rounded-[2.5rem] overflow-hidden mb-6 h-[400px] md:h-[500px] bg-brandBorder shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1000&auto=format&fit=crop"
+                        class="w-full h-full object-cover transition-all duration-700 ease-out group-hover:rotate-[6deg] group-hover:scale-[1.15] group-hover:blur-[8px] group-hover:brightness-[0.7]"
+                        alt="Website Design">
+
+                    <!-- Text Marquee Overlay -->
+                    <div
+                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] rotate-[-8deg] bg-brandAccent text-white font-extrabold text-2xl md:text-3xl py-4 z-20 flex overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-2xl pointer-events-none">
+                        <div class="animate-police-line flex w-max">
+                            <div class="flex gap-4 pr-4">
+                                <span class="tracking-widest uppercase">WEBSITE & DESIGN *</span>
+                                <span class="tracking-widest uppercase">WEBSITE & DESIGN *</span>
+                                <span class="tracking-widest uppercase">WEBSITE & DESIGN *</span>
+                                <span class="tracking-widest uppercase">WEBSITE & DESIGN *</span>
+                            </div>
+                            <div class="flex gap-4 pr-4" aria-hidden="true">
+                                <span class="tracking-widest uppercase">WEBSITE & DESIGN *</span>
+                                <span class="tracking-widest uppercase">WEBSITE & DESIGN *</span>
+                                <span class="tracking-widest uppercase">WEBSITE & DESIGN *</span>
+                                <span class="tracking-widest uppercase">WEBSITE & DESIGN *</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-start px-2">
+                    <div>
+                        <h3 class="text-3xl md:text-4xl font-bold tracking-tight text-brandDark mb-4">Website & Design
+                        </h3>
+                        <div class="flex gap-3 flex-wrap">
+                            <span
+                                class="text-xs font-bold tracking-widest bg-white px-4 py-2 rounded-full border border-brandBorder shadow-sm text-brandDark">CORPORATE
+                                WEB</span>
+                            <span
+                                class="text-xs font-bold tracking-widest bg-white px-4 py-2 rounded-full border border-brandBorder shadow-sm text-brandDark">MARKETING
+                                KIT</span>
+                        </div>
+                    </div>
+                    <div
+                        class="w-14 h-14 bg-brandDark rounded-full flex items-center justify-center text-white group-hover:bg-brandAccent transition-colors shrink-0">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Services List Section (Accordion Style) -->
+    <section class="py-32 px-6 md:px-12 lg:px-20 max-w-screen-2xl mx-auto">
+        <p class="text-sm font-bold uppercase tracking-widest mb-6 text-gray-500 fade-up">OUR SERVICE</p>
+        <h2
+            class="blur-text text-4xl md:text-5xl lg:text-[64px] font-bold leading-tight tracking-tight mb-20 max-w-4xl text-brandDark">
+            Layanan Produksi Visual & Pembelajaran Korporasi
+        </h2>
+
+        <div class="flex flex-col accordion-stagger">
+            <!-- Service 01 -->
+            <div
+                class="service-row acc-item group border-t-2 border-brandBorder py-10 flex flex-col md:flex-row md:items-center justify-between gap-8 cursor-pointer transition-colors hover:bg-white px-4 rounded-xl -mx-4">
+                <div class="flex items-center gap-12 md:w-1/2">
+                    <span class="text-2xl font-medium text-gray-400">01</span>
+                    <h3
+                        class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-brandDark group-hover:translate-x-4 transition-transform">
+                        Pembuatan E-Learning</h3>
+                </div>
+                <div class="flex items-center justify-between md:w-1/2 gap-8">
+                    <p
+                        class="text-lg text-gray-600 font-medium max-w-md hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">
+                        Pembuatan modul interaktif, SCORM, kuis, dan gamifikasi yang kompatibel dengan berbagai LMS
+                        perusahaan Anda.
+                    </p>
+                    <div
+                        class="service-arrow w-14 h-14 rounded-full border-2 border-brandBorder flex items-center justify-center text-brandDark transition-all duration-300">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service 02 -->
+            <div
+                class="service-row acc-item group border-t-2 border-brandBorder py-10 flex flex-col md:flex-row md:items-center justify-between gap-8 cursor-pointer transition-colors hover:bg-white px-4 rounded-xl -mx-4">
+                <div class="flex items-center gap-12 md:w-1/2">
+                    <span class="text-2xl font-medium text-gray-400">02</span>
+                    <h3
+                        class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-brandDark group-hover:translate-x-4 transition-transform">
+                        Video Animasi</h3>
+                </div>
+                <div class="flex items-center justify-between md:w-1/2 gap-8">
+                    <p
+                        class="text-lg text-gray-600 font-medium max-w-md hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">
+                        Produksi video explainer 2D dan infografis yang efektif untuk edukasi produk & komunikasi
+                        internal perusahaan.
+                    </p>
+                    <div
+                        class="service-arrow w-14 h-14 rounded-full border-2 border-brandBorder flex items-center justify-center text-brandDark transition-all duration-300">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service 03 -->
+            <div
+                class="service-row acc-item group border-t-2 border-brandBorder py-10 flex flex-col md:flex-row md:items-center justify-between gap-8 cursor-pointer transition-colors hover:bg-white px-4 rounded-xl -mx-4">
+                <div class="flex items-center gap-12 md:w-1/2">
+                    <span class="text-2xl font-medium text-gray-400">03</span>
+                    <h3
+                        class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-brandDark group-hover:translate-x-4 transition-transform">
+                        Video Production</h3>
+                </div>
+                <div class="flex items-center justify-between md:w-1/2 gap-8">
+                    <p
+                        class="text-lg text-gray-600 font-medium max-w-md hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">
+                        Layanan shooting profesional penuh untuk video company profile, dokumentasi event korporasi, dan
+                        promosi komersial.
+                    </p>
+                    <div
+                        class="service-arrow w-14 h-14 rounded-full border-2 border-brandBorder flex items-center justify-center text-brandDark transition-all duration-300">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service 04 -->
+            <div
+                class="service-row acc-item group border-y-2 border-brandBorder py-10 flex flex-col md:flex-row md:items-center justify-between gap-8 cursor-pointer transition-colors hover:bg-white px-4 rounded-xl -mx-4">
+                <div class="flex items-center gap-12 md:w-1/2">
+                    <span class="text-2xl font-medium text-gray-400">04</span>
+                    <h3
+                        class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-brandDark group-hover:translate-x-4 transition-transform">
+                        Hybrid AI Production</h3>
+                </div>
+                <div class="flex items-center justify-between md:w-1/2 gap-8">
+                    <p
+                        class="text-lg text-gray-600 font-medium max-w-md hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">
+                        Proses produksi kreatif yang terintegrasi dengan teknologi AI untuk alur kerja yang jauh lebih
+                        cepat, efisien, dan berkualitas.
+                    </p>
+                    <div
+                        class="service-arrow w-14 h-14 rounded-full border-2 border-brandBorder flex items-center justify-center text-brandDark transition-all duration-300">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dark Section (Method) -->
+    <section class="bg-brandDark text-white py-32 px-6 md:px-12 lg:px-20 rounded-t-[3rem] dark-section">
+        <div
+            class="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center border-b border-gray-700/30 pb-32">
+            <div>
+                <h2 class="blur-text-light text-5xl md:text-[72px] font-bold leading-[1.05] tracking-tight mb-10">
+                    Sistem Hybrid AI:<br>Efisiensi Tanpa<br>Gimmick
+                </h2>
+                <p class="text-gray-300 text-xl font-medium mb-12 max-w-lg leading-relaxed fade-up">
+                    Kami menghadirkan peace of mind: Rapi, terukur, tanpa kompromi dalam kualitas. Teknologi digunakan
+                    sebagai alat bantu, bukan pengganti standar kerja profesional kami.
+                </p>
+                <button
+                    class="border border-white px-8 py-4 rounded-full text-sm font-bold tracking-widest hover:bg-brandAccent hover:border-brandAccent transition-colors fade-up">
+                    PELAJARI HYBRID AI
+                </button>
+
+                <div class="mt-16 flex flex-col md:flex-row gap-12 fade-up">
+                    <div>
+                        <h3 class="text-5xl font-bold text-white mb-2">4.9 <span class="text-brandAccent">★</span></h3>
+                        <p class="text-xs text-blue-200 font-bold uppercase tracking-widest">CORPORATE CLIENTS</p>
+                    </div>
+                    <div>
+                        <h3 class="text-5xl font-bold text-white mb-2">10+</h3>
+                        <p class="text-xs text-blue-200 font-bold uppercase tracking-widest">YEARS COMBINED EXPERIENCE
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end fade-up">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop"
+                    class="w-full max-w-lg h-[600px] object-cover rounded-[2rem] shadow-2xl scale-img"
+                    alt="Hybrid AI Data">
+            </div>
+        </div>
+
+        <!-- Dark Section Cards -->
+        <div class="max-w-screen-2xl mx-auto pt-32 card-stagger">
+            <h2 class="blur-text-light text-4xl md:text-5xl font-bold tracking-tight text-center mb-20">
+                Kami Menyajikan Kepastian,<br>Bukan Ide Liar
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white text-brandDark rounded-[2rem] p-4 flex flex-col card-item shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=600"
+                        class="w-full h-64 object-cover rounded-2xl mb-8 img-zoom" alt="Structured Workflow">
+                    <div class="p-6 flex-1">
+                        <div
+                            class="w-12 h-12 bg-brandAccent/10 text-brandAccent rounded-xl flex items-center justify-center mb-6">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <line x1="3" y1="9" x2="21" y2="9" />
+                                <line x1="9" y1="21" x2="9" y2="9" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Structured Workflow</h3>
+                        <p class="text-gray-600 font-medium">Proses kerja yang sangat terstruktur mulai dari tahapan
+                            pra-produksi hingga pasca produksi.</p>
+                    </div>
+                </div>
+                <div class="bg-white text-brandDark rounded-[2rem] p-4 flex flex-col card-item shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1506784951206-88eb31bf4520?q=80&w=600"
+                        class="w-full h-64 object-cover rounded-2xl mb-8 img-zoom" alt="Timeline Certainty">
+                    <div class="p-6 flex-1">
+                        <div
+                            class="w-12 h-12 bg-brandAccent/10 text-brandAccent rounded-xl flex items-center justify-center mb-6">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Timeline Certainty</h3>
+                        <p class="text-gray-600 font-medium">Kepastian penyelesaian timeline kerja dan deliverables yang
+                            sangat jelas tanpa penundaan tak terduga.</p>
+                    </div>
+                </div>
+                <div class="bg-white text-brandDark rounded-[2rem] p-4 flex flex-col card-item shadow-2xl">
+                    <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600"
+                        class="w-full h-64 object-cover rounded-2xl mb-8 img-zoom" alt="Quality Control">
+                    <div class="p-6 flex-1">
+                        <div
+                            class="w-12 h-12 bg-brandAccent/10 text-brandAccent rounded-xl flex items-center justify-center mb-6">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Quality Control</h3>
+                        <p class="text-gray-600 font-medium">Sistem kontrol kualitas internal yang ketat untuk selalu
+                            memenuhi standar tinggi korporasi Anda.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transforming Ideas (Light Cards) -->
+    <section class="py-32 px-6 md:px-12 lg:px-20 max-w-screen-2xl mx-auto">
+        <div class="flex flex-col lg:flex-row justify-between items-end mb-20">
+            <h2
+                class="blur-text text-[3.5rem] md:text-[5rem] font-bold leading-[1.05] tracking-tight max-w-3xl text-brandDark">
+                Solusi Lengkap untuk Corporate Excellence
+            </h2>
+            <button
+                class="mt-8 lg:mt-0 bg-brandDark text-white px-8 py-4 rounded-xl text-sm font-bold tracking-widest hover:bg-brandAccent transition-colors fade-up">
+                EKSPLORASI LAYANAN
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 card-stagger">
+            <div class="bg-white p-8 rounded-3xl flex flex-col h-full border border-brandBorder shadow-sm card-item">
+                <h3 class="text-2xl font-bold text-brandDark mb-4">Tim H. Capital</h3>
+                <p class="text-gray-600 font-medium mb-8 flex-1">Solusi media pembelajaran, e-learning interaktif SCORM,
+                    dan video training internal perusahaan.</p>
+                <div class="h-40 w-full rounded-xl overflow-hidden mb-6">
+                    <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=600"
+                        class="w-full h-full object-cover img-zoom" alt="Human Capital">
+                </div>
+                <a href="#" class="text-sm font-bold tracking-widest text-brandDark hover:text-brandAccent">LIHAT SOLUSI
+                    &rarr;</a>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl flex flex-col h-full border border-brandBorder shadow-sm card-item">
+                <h3 class="text-2xl font-bold text-brandDark mb-4">Tim Pemasaran</h3>
+                <p class="text-gray-600 font-medium mb-8 flex-1">Solusi branding perusahaan, video promosi, konten
+                    sosial media, serta kebutuhan digital ads.</p>
+                <div class="h-40 w-full rounded-xl overflow-hidden mb-6 bg-[#F8FAFC] flex items-center justify-center">
+                    <div class="w-16 h-1 bg-brandDark rounded"></div>
+                </div>
+                <a href="#" class="text-sm font-bold tracking-widest text-brandDark hover:text-brandAccent">LIHAT SOLUSI
+                    &rarr;</a>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl flex flex-col h-full border border-brandBorder shadow-sm card-item">
+                <h3 class="text-2xl font-bold text-brandDark mb-4">Corporate Comms</h3>
+                <p class="text-gray-600 font-medium mb-8 flex-1">Video company profile, desain laporan tahunan
+                    korporasi, serta materi presentasi BUMN.</p>
+                <div class="flex items-center gap-4 mb-6 mt-auto">
+                    <div class="flex -space-x-3">
+                        <img class="w-12 h-12 rounded-full border-2 border-white object-cover"
+                            src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=100" alt="Avatar">
+                        <img class="w-12 h-12 rounded-full border-2 border-white object-cover"
+                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=100" alt="Avatar">
+                    </div>
+                    <span class="font-bold text-xl text-brandDark">Dedicated <span
+                            class="text-sm text-gray-500 font-normal block uppercase tracking-wider">Account
+                            Manager</span></span>
+                </div>
+                <a href="#" class="text-sm font-bold tracking-widest text-brandDark hover:text-brandAccent">LIHAT SOLUSI
+                    &rarr;</a>
+            </div>
+
+            <div
+                class="bg-brandDark text-white p-8 rounded-3xl flex flex-col justify-center items-center text-center cursor-pointer hover:bg-brandAccent transition-colors card-item">
+                <div
+                    class="w-16 h-16 border border-white/30 rounded-full flex items-center justify-center mb-4 text-3xl font-light">
+                    +</div>
+                <h3 class="text-xl font-bold uppercase tracking-widest">KONSULTASI</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section class="py-20 px-6 md:px-12 lg:px-20 max-w-screen-2xl mx-auto border-t border-brandBorder">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div class="rounded-[2.5rem] overflow-hidden fade-up shadow-xl">
+                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1000&auto=format&fit=crop"
+                    class="w-full h-[600px] object-cover scale-img" alt="Testimonial Client">
+            </div>
+
+            <div class="fade-up">
+                <p class="text-sm font-bold uppercase tracking-widest mb-6 text-gray-500">TESTIMONIAL KLIEN</p>
+                <h2 class="blur-text text-4xl md:text-5xl font-bold leading-tight tracking-tight mb-12 text-brandDark">
+                    Mitra Terpercaya untuk Eksekusi Profesional
+                </h2>
+                <div class="flex gap-8">
+                    <div class="hidden md:flex flex-col gap-4 w-24">
+                        <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=200"
+                            class="w-full h-24 object-cover rounded-xl img-zoom" alt="Client thumb">
+                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=200"
+                            class="w-full h-24 object-cover rounded-xl img-zoom" alt="Client thumb">
+                    </div>
+                    <div class="flex-1 bg-white p-10 rounded-3xl border border-brandBorder shadow-sm relative">
+                        <svg class="absolute top-8 left-8 w-10 h-10 text-brandAccent opacity-20" fill="currentColor"
+                            viewBox="0 0 32 32">
+                            <path
+                                d="M10 8c-4.4 0-8 3.6-8 8v8h8v-8H6c0-2.2 1.8-4 4-4V8zm18 0c-4.4 0-8 3.6-8 8v8h8v-8h-4c0-2.2 1.8-4 4-4V8z" />
+                        </svg>
+                        <p
+                            class="text-xl md:text-2xl font-medium leading-relaxed mb-10 text-brandDark relative z-10 pt-4">
+                            "Movio adalah mitra yang bisa diandalkan. Mereka menyajikan peace of mind dalam setiap
+                            project dan timeline mereka tepati dengan tepat. Kualitas eksekusi sangat memenuhi
+                            ekspektasi kami."
+                        </p>
+                        <div class="flex items-center justify-between border-t border-brandBorder pt-6">
+                            <div>
+                                <h4 class="font-bold text-lg text-brandDark">Budi Santoso</h4>
+                                <p class="text-sm text-gray-500">Marketing Director, XYZ Corporation</p>
+                            </div>
+                            <div class="text-brandAccent text-xl tracking-widest">★★★★★</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parallax Typography Section -->
+    <section class="py-40 overflow-hidden relative border-t border-brandBorder/50">
+        <div class="text-center mb-10 fade-up">
+            <p class="text-sm font-bold uppercase tracking-widest mb-4 text-brandAccent">OUR PROMISE</p>
+            <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-brandDark">Professional Business Service</h2>
+        </div>
+
+        <div
+            class="relative w-full text-center max-w-[100vw] h-[60vh] flex items-center justify-center parallax-container">
+            <h1
+                class="parallax-text text-[10vw] font-extrabold leading-none tracking-tighter text-brandDark select-none opacity-[0.04] whitespace-nowrap absolute z-0 uppercase">
+                Peace of mind<br>dalam setiap karya
+            </h1>
+
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=400"
+                class="floating-member absolute top-[10%] left-[15%] w-48 h-56 object-cover rounded-2xl shadow-2xl rotate-[-6deg] z-10"
+                data-speed="-1" alt="Tech">
+            <img src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?q=80&w=400"
+                class="floating-member absolute bottom-[0%] left-[40%] w-56 h-72 object-cover rounded-3xl shadow-2xl rotate-[3deg] z-20"
+                data-speed="1.5" alt="Production">
+            <img src="https://images.unsplash.com/photo-1664575602276-faa075f7779d?q=80&w=400"
+                class="floating-member absolute top-[20%] right-[15%] w-48 h-64 object-cover rounded-2xl shadow-2xl rotate-[8deg] z-10"
+                data-speed="-0.5" alt="Corporate">
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-brandDark text-white pt-24 pb-12 px-6 md:px-12 lg:px-20 overflow-hidden relative">
+        <div class="max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 mb-40 relative z-10 fade-up">
+            <!-- Left Info -->
+            <div class="lg:col-span-4">
+                <div class="flex items-center gap-3 mb-10">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="text-brandAccent">
+                        <path d="M15 12L10 8V16L15 12Z" fill="currentColor" />
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                    <span class="text-3xl font-bold tracking-tight">Movio Studio</span>
+                </div>
+                <div class="mb-8">
+                    <p class="text-xs text-blue-200 font-bold uppercase tracking-widest mb-2">EMAIL :</p>
+                    <a href="mailto:info@movio.id"
+                        class="text-2xl font-bold hover:text-brandAccent transition-colors">info@movio.id</a>
+                </div>
+                <div>
+                    <p class="text-xs text-blue-200 font-bold uppercase tracking-widest mb-2">CALL US :</p>
+                    <a href="tel:+622174638350" class="text-2xl font-bold hover:text-brandAccent transition-colors">+62
+                        21 746 38 350</a>
+                </div>
+            </div>
+
+            <!-- Locations -->
+            <div class="lg:col-span-4 flex flex-col gap-8 text-lg font-medium">
+                <div>
+                    <p
+                        class="text-xs text-brandAccent font-bold uppercase tracking-widest mb-2 border-b border-white/20 pb-2">
+                        HEAD OFFICE</p>
+                    <p class="text-blue-100">Jalan Haji Rean No.56 RT.007 RW.005,<br>Benda Baru, Pamulang,<br>Tangerang
+                        Selatan, Banten, 15418</p>
+                </div>
+                <div>
+                    <p
+                        class="text-xs text-brandAccent font-bold uppercase tracking-widest mb-2 border-b border-white/20 pb-2">
+                        OPERATIONAL OFFICE</p>
+                    <p class="text-blue-100">Solo Techno Park, Jl. Ki Hajar Dewantara No. 19,<br>Kentingan, Kec.
+                        Jebres,<br>Kota Surakarta, Jawa Tengah 57126</p>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <div class="lg:col-span-4 grid grid-cols-2 gap-6 text-base text-blue-200 font-medium pl-0 lg:pl-10">
+                <div class="flex flex-col gap-4">
+                    <a href="#" class="hover:text-white transition-colors">Home</a>
+                    <a href="#" class="hover:text-white transition-colors">About Us</a>
+                    <a href="#" class="hover:text-white transition-colors">Solusi</a>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <a href="#" class="hover:text-white transition-colors">Semua Layanan</a>
+                    <a href="#" class="hover:text-white transition-colors">Portfolio Karya</a>
+                    <a href="#" class="hover:text-white transition-colors">Kontak Kami</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative flex flex-col md:flex-row justify-between items-end pt-8 border-t border-white/20">
+            <div class="text-sm text-blue-200 font-medium mb-4 md:mb-0 z-10 flex items-center gap-4">
+                &copy; 2026 Movio Studio. Professional Creative Partner.
+            </div>
+
+            <div
+                class="absolute bottom-[-5vw] left-0 w-full text-center pointer-events-none select-none overflow-hidden z-0">
+                <h1
+                    class="footer-giant-text text-[22vw] font-extrabold text-outline leading-none tracking-tighter opacity-[0.06]">
+                    MOVIO</h1>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPT UNTUK SEMUA ANIMASI -->
+    <script>
+        // Registrasi GSAP ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Tunggu hingga elemen DOM siap
+        document.addEventListener("DOMContentLoaded", (event) => {
+
+            // 1. Animasi Load Hero Section
+            const tlHero = gsap.timeline();
+
+            tlHero.from("#hero-title", {
+                y: 50,
+                opacity: 0,
+                filter: "blur(15px)",
+                duration: 1.2,
+                ease: "power3.out"
+            });
+
+            tlHero.from(".hero-btn", {
+                y: 20,
+                opacity: 0,
+                duration: 0.8,
+                ease: "power3.out"
+            }, "-=0.8");
+
+            tlHero.to(".wheel-container", {
+                opacity: 1,
+                duration: 1.5,
+                ease: "power4.out"
+            }, "-=1");
+
+
+            // Navbar menyembunyikan/memunculkan saat scroll
+            let lastScroll = 0;
+            window.addEventListener("scroll", () => {
+                const currentScroll = window.pageYOffset;
+                if (currentScroll > lastScroll && currentScroll > 100) {
+                    document.getElementById("navbar").style.transform = "translateY(-100%)";
+                } else {
+                    document.getElementById("navbar").style.transform = "translateY(0)";
+                }
+                lastScroll = currentScroll;
+            });
+
+            // MENU DROPDOWN LOGIC
+            const menuBtn = document.getElementById('menu-btn');
+            const navDropdown = document.getElementById('nav-dropdown');
+            let isMenuOpen = false;
+
+            menuBtn.addEventListener('click', () => {
+                isMenuOpen = !isMenuOpen;
+                if (isMenuOpen) {
+                    navDropdown.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
+                    navDropdown.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+                    // Ubah jadi X icon
+                    menuBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brandDark w-full h-full"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+                } else {
+                    navDropdown.classList.add('opacity-0', 'pointer-events-none', 'translate-y-[-20px]');
+                    navDropdown.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+                    // Kembalikan ke grid icon
+                    menuBtn.innerHTML = `
+                        <div class="grid-icon grid grid-cols-2 gap-[3px] w-full h-full pointer-events-none">
+                            <div class="w-full h-full bg-brandDark rounded-[2px]"></div>
+                            <div class="w-full h-full bg-brandDark rounded-[2px]"></div>
+                            <div class="w-full h-full bg-brandDark rounded-[2px]"></div>
+                            <div class="w-full h-full bg-brandDark rounded-[2px]"></div>
+                        </div>
+                    `;
+                }
+            });
+
+            // 2. Animasi Teks Blur Per Kata
+            const blurTexts = new SplitType('.blur-text', { types: 'words' });
+            document.querySelectorAll('.blur-text').forEach((textContainer) => {
+                const words = textContainer.querySelectorAll('.word');
+                gsap.from(words, {
+                    scrollTrigger: { trigger: textContainer, start: "top 85%" },
+                    opacity: 0, filter: "blur(12px)", y: 20, duration: 0.8, stagger: 0.04, ease: "power2.out"
+                });
+            });
+
+            const blurTextsLight = new SplitType('.blur-text-light', { types: 'words' });
+            document.querySelectorAll('.blur-text-light').forEach((textContainer) => {
+                const words = textContainer.querySelectorAll('.word');
+                gsap.from(words, {
+                    scrollTrigger: { trigger: textContainer, start: "top 85%" },
+                    opacity: 0, filter: "blur(12px)", y: 20, duration: 0.8, stagger: 0.04, ease: "power2.out"
+                });
+            });
+
+
+            // 4. Efek Fade-Up Biasa untuk Elemen
+            gsap.utils.toArray('.fade-up').forEach(element => {
+                gsap.from(element, {
+                    scrollTrigger: { trigger: element, start: "top 85%" },
+                    opacity: 0, y: 40, duration: 1, ease: "power3.out"
+                });
+            });
+
+            gsap.utils.toArray('.fade-up-stagger').forEach(container => {
+                gsap.from(container.querySelectorAll('.stat-item'), {
+                    scrollTrigger: { trigger: container, start: "top 85%" },
+                    opacity: 0, y: 30, duration: 0.8, stagger: 0.15, ease: "power3.out"
+                });
+            });
+
+            gsap.utils.toArray('.accordion-stagger').forEach(container => {
+                gsap.from(container.querySelectorAll('.acc-item'), {
+                    scrollTrigger: { trigger: container, start: "top 85%" },
+                    opacity: 0, y: 30, duration: 0.8, stagger: 0.1, ease: "power3.out"
+                });
+            });
+
+            gsap.utils.toArray('.card-stagger').forEach(container => {
+                gsap.from(container.querySelectorAll('.card-item'), {
+                    scrollTrigger: { trigger: container, start: "top 85%" },
+                    opacity: 0, y: 50, duration: 0.8, stagger: 0.15, ease: "power3.out"
+                });
+            });
+
+
+            // 5. Efek Gambar Zoom/Scale saat scroll
+            gsap.utils.toArray('.scale-img').forEach(img => {
+                gsap.from(img, {
+                    scrollTrigger: {
+                        trigger: img,
+                        start: "top bottom",
+                        end: "bottom top",
+                        scrub: true
+                    },
+                    scale: 1.15,
+                    ease: "none"
+                });
+            });
+
+            // Efek Zoom sederhana saat hover di grid cards
+            const imgZooms = document.querySelectorAll('.img-zoom');
+            imgZooms.forEach(img => {
+                img.parentElement.parentElement.addEventListener('mouseenter', () => {
+                    gsap.to(img, { scale: 1.05, duration: 0.5, ease: "power2.out" });
+                });
+                img.parentElement.parentElement.addEventListener('mouseleave', () => {
+                    gsap.to(img, { scale: 1, duration: 0.5, ease: "power2.out" });
+                });
+            });
+
+            // 6. Efek Parallax
+            gsap.utils.toArray('.floating-member').forEach(member => {
+                const speed = member.getAttribute('data-speed');
+                gsap.to(member, {
+                    scrollTrigger: {
+                        trigger: ".parallax-container",
+                        start: "top bottom",
+                        end: "bottom top",
+                        scrub: true
+                    },
+                    y: (i, target) => -100 * speed,
+                    ease: "none"
+                });
+            });
+
+            gsap.to(".footer-giant-text", {
+                scrollTrigger: {
+                    trigger: "footer",
+                    start: "top bottom",
+                    end: "bottom bottom",
+                    scrub: 1
+                },
+                y: -100,
+                ease: "none"
+            });
+
+        });
+    </script>
+</body>
+
+</html>
